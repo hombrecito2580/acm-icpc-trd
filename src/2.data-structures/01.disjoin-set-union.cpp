@@ -1,27 +1,35 @@
 struct DSU {
-    vector<int> par;
-    vector<int> sz;
+    vector<int> parent, rank, size;
 
     DSU(int n) {
-        FOR(i, 0, n) {
-            par.pb(i);
-            sz.pb(1);
+        parent.resize(n);
+        rank.resize(n, 0); 
+        size.resize(n, 1); 
+        rep(i, 0, n) parent[i] = i;
+    }
+    
+    int find(int x) {
+        if(parent[x] == x) return x;
+        return parent[x] = find(parent[x]);
+    }
+
+    
+    void unionSets(int x, int y) {
+        int rootX = find(x);
+        int rootY = find(y);
+
+        if (rootX != rootY) {  
+            if (rank[rootX] > rank[rootY]) {
+                parent[rootY] = rootX;
+                size[rootX] += size[rootY]; 
+            } else if (rank[rootX] < rank[rootY]) {
+                parent[rootX] = rootY;
+                size[rootY] += size[rootX]; 
+            } else {
+                parent[rootY] = rootX;
+                size[rootX] += size[rootY]; 
+                rank[rootX]++; 
+            }
         }
-    }
-
-    int find(int a) {
-        return par[a] = par[a] == a ? a : find(par[a]);
-    }
-
-    bool same(int a, int b) {
-        return find(a) == find(b);
-    }
-
-    void unite(int a, int b) {
-        a = find(a);
-        b = find(b);
-        if(sz[a] > sz[b]) swap(a, b);
-        sz[b] += sz[a];
-        par[a] = b;
     }
 };
