@@ -1,8 +1,8 @@
-int n; // number of nodes
-vector<vector<int>> adj; // adjacency list of graph
+int n;                    // number of nodes
+vector<vector<int>> adj;  // adjacency list of graph
 
 vector<bool> visited;
-vector<int> tin, fup;
+vector<int> inTime, lowTime;
 int timer;
 
 void processBridge(int u, int v) {
@@ -11,16 +11,15 @@ void processBridge(int u, int v) {
 
 void dfs(int v, int p = -1) {
     visited[v] = true;
-    tin[v] = fup[v] = timer++;
+    inTime[v] = lowTime[v] = timer++;
     for (int to : adj[v]) {
-        if (to == p) continue;
+        if (to == p) continue;;
         if (visited[to]) {
-            fup[v] = min(fup[v], tin[to]);
+            lowTime[v] = min(lowTime[v], inTime[to]);
         } else {
             dfs(to, v);
-            fup[v] = min(fup[v], fup[to]);
-            if (fup[to] > tin[v])
-                processBridge(v, to);
+            lowTime[v] = min(lowTime[v], lowTime[to]);
+            if (lowTime[to] > inTime[v]) processBridge(v, to);
         }
     }
 }
@@ -30,11 +29,10 @@ void dfs(int v, int p = -1) {
 void findBridges() {
     timer = 0;
     visited.assign(n, false);
-    tin.assign(n, -1);
-    fup.assign(n, -1);
+    inTime.assign(n, -1);
+    lowTime.assign(n, -1);
     bridges.clear();
     FOR(i, 0, n) {
-        if (!visited[i])
-            dfs(i);
+        if (!visited[i]) dfs(i);
     }
 }

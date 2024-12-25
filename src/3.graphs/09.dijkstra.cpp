@@ -1,7 +1,7 @@
 vector<vector<pair<int, int>>> adj;
-void dijkstra(int s, vector<int> & d, vector<int> & p) {
+void dijkstra(int s, vector<int>& d, vector<int>& p) {
     int n = adj.size();
-    d.assign(n, oo);
+    d.assign(n, INT_MAX);
     p.assign(n, -1);
 
     d[s] = 0;
