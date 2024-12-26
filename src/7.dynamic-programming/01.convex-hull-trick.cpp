@@ -1,59 +1,36 @@
-/*
-Let's say we have a relation:
-dp[i] = min(dp[j] + h[j+1]*w[i]) for j<=i
-Let's set k_j = h[j+1], x = w[i], b_j = dp[j]. We get:
-dp[i] = min(b_j+k_j*x) for j<=i.
-This is the same as finding a minimum point on a set of lines.
-After calculating the value, we add a new line with
-k_i = h[i+1] and b_i = dp[i].
-*/
-struct Line {
-    int k;
-    int b;
-
-    int eval(int x) {
-        return k*x+b;
-    }
-
-    int intX(Line& other) {
-        int x = b-other.b;
-        int y = other.k-k;
-        int res = x/y;
-        if(x%y != 0) res++;
-        return res;
-    }
-};
-
-struct BagOfLines {
-    vector<pair<Line, int>> lines;
-
-    void addLine(int k, int b) {
-        Line current = {k, b};
-        if(lines.empty()) {
-            lines.pb({current, -OO});
+class CHT {
+    // slope in increasing order
+    deque<pair<Line, int>> dq;
+public:
+    void insert(int m, int c) {
+        Line newLine(m, c);
+        if(dq.empty()) {
+            dq.push_back({newLine, INT_MN});
             return;
         }
-        int x = -OO;
-        while(true) {
-            auto line = lines.back().first;
-            int from = lines.back().second;
-            x = line.intX(current);
-            if(x > from) break;
-            lines.pop_back();
+
+        while(dq.size() > 1 && dq.back().second >= dq.back().first.intersect(newLine)) {
+            dq.pop_back();
         }
-        lines.pb({current, x});
+
+        dq.push_back({newLine, dq.back().first.intersect(newLine)});
     }
 
-    int findMin(int x) {
-        int lo = 0, hi = (int)lines.size()-1;
-        while(lo < hi) {
-            int mid = (lo+hi+1)/2;
-            if(lines[mid].second <= x) {
-                lo = mid;
-            } else {
-                hi = mid-1;
-            }
+    int query1(int x) {
+        while(dq.size() > 1) {
+            if(dq[1].second <= x) dq.pop_front();
+            else break;
         }
-        return lines[lo].first.eval(x);
+        return dq[0].first.getVal(x);
     }
+
+    int query2(int x) {
+        auto it = upper_bound(dq.begin(), dq.end(), make_pair(Line(0,0), x), 
+                              [&](const pair<Line, int> &a, const pair<Line, int> &b) {
+                                    return a.second < b.second;
+                            });
+        it--;
+        return (*it).first.getVal(x);
+    }
+
 };
